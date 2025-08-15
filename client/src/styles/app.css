@@ -1,0 +1,151 @@
+@import "./tokens.css";
+
+/* Base */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Layout helpers */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-6);
+}
+
+/* Buttons & links */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  background: var(--brand);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: var(--shadow-1);
+}
+.button:hover {
+  filter: brightness(0.96);
+}
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Simple navbar */
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #eceef2;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.navbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.nav-links {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+.nav-links a {
+  color: var(--text);
+}
+.nav-links a.active {
+  color: var(--brand);
+}
+
+/* Forms */
+input[type="text"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #d9dce3;
+  border-radius: 10px;
+  background: #f9f9fb;
+}
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Journal “notebook” box (kept, just cleaned) */
+.journal-box {
+  width: 100%;
+  max-width: 480px;
+  height: 320px;
+  padding: 20px;
+  margin: 20px auto;
+  overflow-y: auto;
+  text-align: left;
+  font-family: "Courier New", Courier, monospace;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fffbe6;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #fffbe6 0px,
+    #fffbe6 24px,
+    #e2e2e2 25px
+  );
+  border: 2px solid #333;
+  border-radius: 10px;
+}
+
+/* Utilities */
+.centered-text {
+  text-align: center;
+}
+.centered-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+}
+
+.hero {
+  background: linear-gradient(120deg, var(--accent-pink), var(--accent-cyan));
+  color: #fff;
+}

@@ -1,0 +1,202 @@
+{
+  "entries": {
+    "rights:CA": {
+      "data": {
+        "ok": true,
+        "state": "CA",
+        "lastUpdated": "2025-08-15T17:24:48.706Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": [
+          {
+            "ok": false,
+            "topic": "parentage",
+            "error": "ReferenceError: paUrl is not defined"
+          },
+          {
+            "ok": false,
+            "topic": "parentage",
+            "error": "ReferenceError: isLgbtMap is not defined"
+          }
+        ]
+      },
+      "cachedAt": 1755278688707
+    },
+    "rights:TX": {
+      "data": {
+        "ok": true,
+        "state": "TX",
+        "lastUpdated": "2025-08-14T19:44:32.603Z",
+        "parentage_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "abortion_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "links": [
+          {
+            "label": "Source",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/TX"
+          },
+          {
+            "label": "Source (MAP)",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/TX"
+          }
+        ],
+        "_parts": [
+          {
+            "ok": true,
+            "topic": "abortion"
+          },
+          {
+            "ok": true,
+            "topic": "parentage"
+          }
+        ]
+      },
+      "cachedAt": 1755200673658
+    },
+    "rights:CO": {
+      "data": {
+        "ok": true,
+        "state": "CO",
+        "lastUpdated": "2025-08-14T20:00:21.101Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": []
+      },
+      "cachedAt": 1755201621101
+    },
+    "rights:CT": {
+      "data": {
+        "ok": true,
+        "state": "CT",
+        "lastUpdated": "2025-08-14T20:09:20.677Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": []
+      },
+      "cachedAt": 1755202160677
+    },
+    "rights:AZ": {
+      "data": {
+        "ok": true,
+        "state": "AZ",
+        "lastUpdated": "2025-08-14T20:09:29.475Z",
+        "parentage_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "abortion_summary": "Now that the Supreme Court has overturned Roe:",
+        "links": [
+          {
+            "label": "Source (CRR)",
+            "url": "https://reproductiverights.org/maps/state/arizona/"
+          },
+          {
+            "label": "Source (MAP)",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/AZ"
+          }
+        ],
+        "_parts": [
+          {
+            "ok": true,
+            "topic": "abortion"
+          },
+          {
+            "ok": true,
+            "topic": "parentage"
+          }
+        ]
+      },
+      "cachedAt": 1755202170636
+    },
+    "rights:AK": {
+      "data": {
+        "ok": true,
+        "state": "AK",
+        "lastUpdated": "2025-08-14T20:15:02.926Z",
+        "parentage_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "abortion_summary": "Now that the Supreme Court has overturned Roe:",
+        "links": [
+          {
+            "label": "Source (CRR)",
+            "url": "https://reproductiverights.org/maps/state/alaska/"
+          },
+          {
+            "label": "Source (MAP)",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/AK"
+          }
+        ],
+        "_parts": [
+          {
+            "ok": true,
+            "topic": "abortion"
+          },
+          {
+            "ok": true,
+            "topic": "parentage"
+          }
+        ]
+      },
+      "cachedAt": 1755202504159
+    },
+    "rights:KY": {
+      "data": {
+        "ok": true,
+        "state": "KY",
+        "lastUpdated": "2025-08-14T20:17:24.881Z",
+        "parentage_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "abortion_summary": "Now that the Supreme Court has overturned Roe:",
+        "links": [
+          {
+            "label": "Source (CRR)",
+            "url": "https://reproductiverights.org/maps/state/kentucky/"
+          },
+          {
+            "label": "Source (MAP)",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/KY"
+          }
+        ],
+        "_parts": [
+          {
+            "ok": true,
+            "topic": "abortion"
+          },
+          {
+            "ok": true,
+            "topic": "parentage"
+          }
+        ]
+      },
+      "cachedAt": 1755202645771
+    },
+    "rights:MD": {
+      "data": {
+        "ok": true,
+        "state": "MD",
+        "lastUpdated": "2025-08-14T20:17:27.753Z",
+        "parentage_summary": "Percent of Adults (18+) Who are LGBTQ",
+        "abortion_summary": "Now that the Supreme Court has overturned Roe:",
+        "links": [
+          {
+            "label": "Source (CRR)",
+            "url": "https://reproductiverights.org/maps/state/maryland/"
+          },
+          {
+            "label": "Source (MAP)",
+            "url": "https://www.lgbtmap.org/equality_maps/profile_state/MD"
+          }
+        ],
+        "_parts": [
+          {
+            "ok": true,
+            "topic": "abortion"
+          },
+          {
+            "ok": true,
+            "topic": "parentage"
+          }
+        ]
+      },
+      "cachedAt": 1755202648294
+    }
+  },
+  "savedAt": "2025-08-15T17:24:48.707Z"
+}

@@ -1,0 +1,40 @@
+{
+  "entries": {
+    "rights:AZ": {
+      "data": {
+        "ok": true,
+        "state": "AZ",
+        "lastUpdated": "2025-08-14T17:56:03.246Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": []
+      },
+      "cachedAt": 1755194163246
+    },
+    "rights:CA": {
+      "data": {
+        "ok": true,
+        "state": "CA",
+        "lastUpdated": "2025-08-14T17:56:06.928Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": [
+          {
+            "ok": false,
+            "topic": "abortion",
+            "error": "TypeError: fetch failed"
+          },
+          {
+            "ok": false,
+            "topic": "parentage",
+            "error": "TypeError: fetch failed"
+          }
+        ]
+      },
+      "cachedAt": 1755194175194
+    }
+  },
+  "savedAt": "2025-08-14T17:56:15.194Z"
+}

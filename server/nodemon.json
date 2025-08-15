@@ -1,0 +1,5 @@
+{
+  "watch": ["index.js", "routes", "services", "lib", "api"],
+  "ignore": ["data/rights.cache.json", ".cache/**", "../client/dist/**"],
+  "ext": "js,json"
+}

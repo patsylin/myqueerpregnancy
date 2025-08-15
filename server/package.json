@@ -1,1 +1,36 @@
-{"name": "myqueerpregnancy", "version": "1.0.0", "description": "A queer pregnancy support app", "main": "index.js", "scripts": {"test": "echo 'Error: no test specified' && exit 1"}, "repository": {"type": "git", "url": "git+https://github.com/patsylin/myqueerpregnancy.git"}, "keywords": ["queer", "pregnancy", "support"], "author": "patsylin", "license": "ISC"}
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "seed": "node ./db/seed.js",
+    "build": "cd ../client && npm run build",
+    "production:build": "npm run seed && npm run build ",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cheerio": "^1.1.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "ms": "^2.1.3",
+    "node-fetch": "^2.7.0",
+    "node-html-parser": "^7.0.1",
+    "nodemon": "^3.0.1",
+    "p-queue": "^8.1.0",
+    "p-retry": "^6.2.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "jest": "^29.6.1"
+  }
+}
