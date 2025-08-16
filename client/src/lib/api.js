@@ -21,3 +21,15 @@ export const login = (user) =>
 
 export const me = () =>
   fetch(`${API}/auth/me`, { credentials: "include" }).then(json);
+
+export async function getAllSizes() {
+  const res = await fetch(`${API}/sizes`, { credentials: "include" });
+  if (!res.ok) throw new Error("Failed to load sizes");
+  return res.json();
+}
+
+export async function getSizeByWeek(week) {
+  const res = await fetch(`${API}/sizes/${week}`, { credentials: "include" });
+  if (!res.ok) throw new Error("Size not found");
+  return res.json();
+}
