@@ -31,7 +31,6 @@ app.get("/", (req, res) => {
 
 // Router: /api
 app.use("/api", require("./api"));
-app.use("/api/rights", require("./routes/rights"));
 
 app.use((error, req, res, next) => {
   res
