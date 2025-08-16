@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import WeekView from "./pages/WeekView";
 
 import NavBar from "./components/NavBar.jsx";
 import Home from "./pages/Home.jsx";
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/rights" element={<Rights />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/sizes" element={<WeekView />} />
 
           <Route
             path="/journal"

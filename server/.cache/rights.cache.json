@@ -4,7 +4,7 @@
       "data": {
         "ok": true,
         "state": "CA",
-        "lastUpdated": "2025-08-15T17:24:48.706Z",
+        "lastUpdated": "2025-08-16T20:38:59.959Z",
         "parentage_summary": null,
         "abortion_summary": null,
         "links": [],
@@ -21,7 +21,7 @@
           }
         ]
       },
-      "cachedAt": 1755278688707
+      "cachedAt": 1755376739961
     },
     "rights:TX": {
       "data": {
@@ -196,7 +196,30 @@
         ]
       },
       "cachedAt": 1755202648294
+    },
+    "rights:AR": {
+      "data": {
+        "ok": true,
+        "state": "AR",
+        "lastUpdated": "2025-08-16T20:39:33.669Z",
+        "parentage_summary": null,
+        "abortion_summary": null,
+        "links": [],
+        "_parts": [
+          {
+            "ok": false,
+            "topic": "parentage",
+            "error": "ReferenceError: paUrl is not defined"
+          },
+          {
+            "ok": false,
+            "topic": "parentage",
+            "error": "ReferenceError: isLgbtMap is not defined"
+          }
+        ]
+      },
+      "cachedAt": 1755376773670
     }
   },
-  "savedAt": "2025-08-15T17:24:48.707Z"
+  "savedAt": "2025-08-16T20:39:33.670Z"
 }

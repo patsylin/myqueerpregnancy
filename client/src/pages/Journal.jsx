@@ -1,77 +1,75 @@
-export default function MyJournal() {
+// client/src/pages/Journal.jsx
+import { useEffect, useState } from "react";
+
+export default function Journal() {
+  const [items, setItems] = useState([]);
+  const [text, setText] = useState("");
+  const [err, setErr] = useState("");
+
+  const load = async () => {
+    setErr("");
+    const res = await fetch("/api/journal", { credentials: "include" });
+    const data = await res.json();
+    if (res.ok && Array.isArray(data)) setItems(data);
+    else setErr(data?.error?.message || "Failed to load journal");
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const create = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/journal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ content: text }),
+    });
+    if (res.ok) {
+      setText("");
+      load();
+    } else {
+      const d = await res.json();
+      setErr(d?.error?.message || "Failed to create");
+    }
+  };
+
   return (
-    <div className="card">
-      <h2>My Journal</h2>
-      <p>Not wired yet.</p>
-    </div>
+    <main>
+      <h1>Journal</h1>
+      <form
+        onSubmit={create}
+        style={{ display: "grid", gap: 8, maxWidth: 600 }}
+      >
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={4}
+          placeholder="Write a new entry..."
+        />
+        <button>Add entry</button>
+      </form>
+      {err && <p style={{ color: "crimson" }}>{err}</p>}
+      <ul style={{ padding: 0, listStyle: "none", marginTop: 16 }}>
+        {items.map((it) => (
+          <li
+            key={it.id}
+            style={{
+              background: "#fff",
+              border: "1px solid #eee",
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 10,
+            }}
+          >
+            <div style={{ fontSize: 14, opacity: 0.7 }}>
+              {new Date(it.created_at || it.createdAt).toLocaleString()}
+            </div>
+            <div>{it.content}</div>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }
-// import { useEffect, useState } from "react";
-
-// // Component displays a form to create a journal entry and lists past entries
-// const MyJournal = () => {
-//   const [newContent, setNewContent] = useState("");
-//   const [entries, setEntries] = useState([]);
-
-//   // fetch existing journal entries on mount
-//   const fetchEntries = async () => {
-//     try {
-//       const response = await fetch("/api/journal");
-//       const data = await response.json();
-//       setEntries(data);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchEntries();
-//   }, []);
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     try {
-//       await fetch("/api/journal", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ text: newContent }),
-//       });
-//       setNewContent("");
-//       fetchEntries();
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <div className="my-journal-container">
-//       <div className="journal-box">
-//         <h2 className="centered-text">My Journal</h2>
-//         <form onSubmit={handleSubmit}>
-//           <label htmlFor="Journal"></label>
-//           <br />
-//           <textarea
-//             value={newContent}
-//             onChange={(event) => setNewContent(event.target.value)}
-//           />
-//           <button type="submit">Submit</button>
-//         </form>
-//         <div
-//           className="journal-entries"
-//           style={{ maxHeight: "300px", overflowY: "auto", marginTop: "1rem" }}
-//         >
-//           {entries.map((entry) => (
-//             <div key={entry.id} className="journal-entry">
-//               <strong>{new Date(entry.created_at).toLocaleDateString()}</strong>
-//               <p>{entry.content}</p>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MyJournal;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { API } from "../lib/api";
 import { STATE_NAMES } from "../constants/states";
 import { fmtTally, fmtPercent } from "../lib/format";
+import { API } from "../lib/api.js";
 
 const STATE_CODES = Object.keys(STATE_NAMES);
 

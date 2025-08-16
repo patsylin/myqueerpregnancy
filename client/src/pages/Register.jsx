@@ -1,68 +1,70 @@
-export default function RegisterForm() {
+// client/src/pages/Register.jsx
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/auth.jsx";
+
+export default function Register() {
+  const { register, error } = useAuth();
+  const [username, setU] = useState("");
+  const [password, setP] = useState("");
+  const [confirm, setC] = useState("");
+  const [localErr, setLocalErr] = useState("");
+
+  const nav = useNavigate();
+  const loc = useLocation();
+  const from = loc.state?.from?.pathname || "/journal";
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setLocalErr("");
+
+    if (password.length < 6) {
+      setLocalErr("Password must be at least 6 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setLocalErr("Passwords do not match.");
+      return;
+    }
+
+    const res = await register({ username, password });
+    if (res.ok) nav(from, { replace: true });
+    // If not ok, AuthProvider exposes `error`, shown below
+  };
+
   return (
-    <div className="card">
-      <h2>Register</h2>
-      <p>Not wired yet.</p>
-    </div>
+    <main>
+      <h1>Create account</h1>
+      <form
+        onSubmit={onSubmit}
+        style={{ display: "grid", gap: 12, maxWidth: 360 }}
+      >
+        <input
+          value={username}
+          onChange={(e) => setU(e.target.value)}
+          placeholder="Username"
+          autoComplete="username"
+        />
+        <input
+          value={password}
+          onChange={(e) => setP(e.target.value)}
+          placeholder="Password"
+          type="password"
+          autoComplete="new-password"
+        />
+        <input
+          value={confirm}
+          onChange={(e) => setC(e.target.value)}
+          placeholder="Confirm password"
+          type="password"
+          autoComplete="new-password"
+        />
+        <button>Create account</button>
+
+        {(localErr || error) && (
+          <div style={{ color: "crimson" }}>{localErr || error}</div>
+        )}
+      </form>
+    </main>
   );
 }
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-
-// const RegisterForm = ({ setUser }) => {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-
-//     try {
-//       const response = await fetch("/api/auth/register", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ username, password }),
-//       });
-
-//       const data = await response.json();
-//       console.log(response);
-//       if (data.ok) {
-//         if (data.token) {
-//           localStorage.setItem("token", data.token);
-//           setUser(data.user);
-//           navigate("/");
-//         }
-//       }
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <form onSubmit={handleSubmit}>
-//         <label htmlFor="Username">Username</label>
-//         <br />
-//         <input
-//           type="text"
-//           value={username}
-//           onChange={(event) => setUsername(event.target.value)}
-//         />
-//         <br />
-//         <label htmlFor="Password">Password</label>
-//         <br />
-//         <input
-//           type="password"
-//           value={password}
-//           onChange={(event) => setPassword(event.target.value)}
-//         />
-
-//         <button type="Submit">Submit</button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default RegisterForm;
