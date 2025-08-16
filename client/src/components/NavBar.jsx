@@ -1,89 +1,77 @@
-import { NavLink } from "react-router-dom";
-
-const linkStyle = ({ isActive }) => ({
-  textDecoration: "none",
-  padding: "6px 10px",
-  borderRadius: 6,
-  fontWeight: 600,
-  border: isActive ? "1px solid #ccc" : "1px solid transparent",
-});
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/auth.jsx";
 
 export default function NavBar() {
+  const nav = useNavigate();
+  const { user, logout } = useAuth();
+  const link = ({ isActive }) => ({
+    padding: "8px 10px",
+    borderRadius: 8,
+    background: isActive ? "#eee" : "transparent",
+  });
+
   return (
     <nav
       style={{
-        display: "flex",
-        gap: 12,
-        padding: 12,
-        borderBottom: "1px solid #eee",
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        background: "#fff",
+        borderBottom: "1px solid #e6e6e6",
       }}
     >
-      <NavLink to="/" style={linkStyle}>
-        Home
-      </NavLink>
-      <NavLink to="/rights" style={linkStyle}>
-        Know Your Rights
-      </NavLink>
-      <NavLink to="/journal" style={linkStyle}>
-        Journal
-      </NavLink>
+      <div
+        style={{
+          maxWidth: 900,
+          margin: "0 auto",
+          padding: "10px 16px",
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+        }}
+      >
+        <NavLink style={link} to="/">
+          Home
+        </NavLink>
+        <NavLink style={link} to="/journal">
+          Journal
+        </NavLink>
+        <NavLink style={link} to="/rights">
+          Rights
+        </NavLink>
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          {user ? (
+            <>
+              <span style={{ opacity: 0.7 }}>Hi, {user.username}</span>
+              <button
+                onClick={async () => {
+                  await logout();
+                  nav("/");
+                }}
+                style={{ padding: "6px 10px" }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink style={link} to="/login">
+                Login
+              </NavLink>
+              <NavLink style={link} to="/register">
+                Register
+              </NavLink>
+            </>
+          )}
+        </div>
+      </div>
     </nav>
   );
 }
-// import React from "react";
-// import { Link, useNavigate } from "react-router-dom";
-
-// const NavBar = ({ user, setUser }) => {
-//   const navigate = useNavigate();
-//   const handleLogout = () => {
-//     localStorage.removeItem("token");
-//     setUser(null);
-//     navigate("/");
-//   };
-
-//   return (
-//     <div className="navbar">
-//       <div className="left-box">
-//         <p className="app-title">My Queer Pregnancy App</p>
-//         <nav className="nav-links">
-//           {user ? (
-//             <>
-//               <Link to="/" className="nav-link">
-//                 Home
-//               </Link>
-//               <Link to="/journal" className="nav-link">
-//                 My Journal
-//               </Link>
-//               <Link to="/states-rights" className="nav-link">
-//                 States Rights
-//               </Link>
-//             </>
-//           ) : (
-//             <>
-//               <Link to="/" className="nav-link">
-//                 Login
-//               </Link>
-//               <Link to="/register" className="nav-link">
-//                 Register
-//               </Link>
-//             </>
-//           )}
-//         </nav>
-//       </div>
-//       <div className="right-box">
-//         {user ? (
-//           <div>
-
-//             <button onClick={handleLogout} className="logout-button">
-//               Logout
-//             </button>
-//           </div>
-//         ) : (
-//           <h1>Please log in</h1>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NavBar;
