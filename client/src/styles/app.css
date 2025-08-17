@@ -149,3 +149,54 @@ img {
   background: linear-gradient(120deg, var(--accent-pink), var(--accent-cyan));
   color: #fff;
 }
+
+/* Rights page */
+.rights-page {
+  max-width: 900px;
+  margin: var(--space-lg) auto;
+  padding: 0 var(--space-md);
+}
+
+.rights-header {
+  margin-bottom: var(--space-md);
+}
+
+.state-filter {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  margin: var(--space-md) 0;
+}
+
+.rights-summary {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.rights-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-card);
+}
+
+.rights-table th,
+.rights-table td {
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-sm);
+  vertical-align: top;
+}
+
+.rights-table th {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+.error-text {
+  color: var(--color-text-error, crimson);
+}
