@@ -1,174 +1,148 @@
+// client/src/pages/Rights.jsx
 import { useEffect, useState } from "react";
 import { STATE_NAMES } from "../constants/states";
 import { fmtTally, fmtPercent } from "../lib/format";
-import { API } from "../lib/api.js";
+import { rightsAll, rightsByState } from "../lib/api.js";
 
 const STATE_CODES = Object.keys(STATE_NAMES);
 
 export default function Rights() {
-  const [states, setStates] = useState(STATE_CODES);
-  const [stateCode, setStateCode] = useState("CA");
+  const [loading, setLoading] = useState(true);
+  const [stateCode, setStateCode] = useState(""); // "" = all states
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${API}/api/rights`);
-        const json = await res.json();
-        if (json?.ok && Array.isArray(json.states)) setStates(json.states);
-      } catch {
-        /* fallback already set */
-      }
-    })();
-  }, []);
-
-  async function fetchRights(code) {
-    setLoading(true);
-    setErr("");
+  const load = async (code = "") => {
     try {
-      const res = await fetch(`${API}/api/rights/${code}`);
-      const json = await res.json();
-      if (!res.ok || json?.ok === false)
-        throw new Error(json?.message || "Failed to load");
-      setData(json);
+      setLoading(true);
+      setErr("");
+      const res = code ? await rightsByState(code) : await rightsAll();
+      setData(res);
     } catch (e) {
-      setErr(e.message || "Error fetching rights");
-      setData(null);
+      setErr("Failed to load rights data.");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchRights(stateCode);
-  }, [stateCode]);
+    load();
+  }, []);
 
-  const lastUpdated = data?.lastUpdated
-    ? new Date(data.lastUpdated).toLocaleString()
-    : "—";
-  const parentageLink =
-    data?.links?.find((l) => /lgbtmap\.org/i.test(l.url)) || null;
-  const abortionLink =
-    data?.links?.find((l) => /reproductiverights\.org/i.test(l.url)) || null;
+  const onChange = (e) => {
+    const code = e.target.value;
+    setStateCode(code);
+    load(code);
+  };
 
   return (
-    <div className="card">
-      <h2>Know Your Rights</h2>
-      <p style={{ color: "var(--muted)", marginTop: -8 }}>
-        Snapshot info only—verify with the linked sources.
-      </p>
+    <main>
+      <h1>Know Your Rights</h1>
 
       <div
         style={{
           display: "flex",
           gap: 12,
           alignItems: "center",
-          marginBottom: 16,
+          margin: "12px 0",
         }}
       >
-        <label htmlFor="state">State</label>
-        <select
-          id="state"
-          value={stateCode}
-          onChange={(e) => setStateCode(e.target.value)}
-        >
-          {states.map((s) => (
-            <option key={s} value={s}>
-              {s}
+        <label htmlFor="state">Filter by state:</label>
+        <select id="state" value={stateCode} onChange={onChange}>
+          <option value="">All states</option>
+          {STATE_CODES.map((c) => (
+            <option key={c} value={c}>
+              {c} — {STATE_NAMES[c]}
             </option>
           ))}
         </select>
-        <button onClick={() => fetchRights(stateCode)} disabled={loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
       </div>
 
-      {err ? (
-        <p style={{ color: "crimson" }}>{err}</p>
-      ) : (
-        <>
-          <h3 style={{ marginBottom: 0 }}>
-            {STATE_NAMES[stateCode] || stateCode}
-          </h3>
-          <p style={{ color: "var(--muted)", marginTop: 4 }}>
-            Last updated: {lastUpdated}
-          </p>
+      {loading && <p>Loading…</p>}
+      {err && <p style={{ color: "crimson" }}>{err}</p>}
 
-          <section style={{ display: "grid", gap: 12 }}>
-            <article className="card">
-              <h3 style={{ marginTop: 0 }}>
-                {parentageLink ? (
-                  <a href={parentageLink.url} target="_blank" rel="noreferrer">
-                    Parentage
-                  </a>
-                ) : (
-                  "Parentage"
-                )}
-              </h3>
-              <p style={{ fontSize: 14 }}>
-                <strong>Percent of LGBTQ Adults (25+) Raising Children:</strong>{" "}
-                {fmtPercent(data?.parentage_children_pct) ?? "—"}
+      {!loading && !err && data && (
+        <section style={{ display: "grid", gap: 12 }}>
+          {/* Example render: adjust to your API shape */}
+          {"summary" in data && (
+            <div
+              style={{
+                background: "#fff",
+                border: "1px solid #eee",
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
+              <h2 style={{ marginTop: 0 }}>Summary</h2>
+              <p>Total states tracked: {fmtTally(data.summary?.states)}</p>
+              <p>
+                Parentage protections:{" "}
+                {fmtPercent(data.summary?.parentageProtectedPct)}
               </p>
-              <p>{data?.parentage_summary ?? "No snapshot available yet."}</p>
-              <p style={{ fontSize: 14, color: "var(--muted)" }}>
-                Overall Tally:{" "}
-                {data?.parentage_tally ? (
-                  <>
-                    <strong>{fmtTally(data.parentage_tally)}</strong>{" "}
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        color:
-                          {
-                            Negative: "crimson",
-                            Low: "goldenrod",
-                            Fair: "#ddd",
-                            Medium: "lightgreen",
-                            High: "green",
-                          }[data.parentage_tally.level] || "inherit",
-                      }}
-                    >
-                      {data.parentage_tally.level}
-                    </span>
-                  </>
-                ) : (
-                  "—"
-                )}
+              <p>
+                Abortion access: {fmtPercent(data.summary?.abortionAccessPct)}
               </p>
-            </article>
+            </div>
+          )}
 
-            <article className="card">
-              <h3 style={{ marginTop: 0 }}>
-                {abortionLink ? (
-                  <a href={abortionLink.url} target="_blank" rel="noreferrer">
-                    Abortion Access
-                  </a>
-                ) : (
-                  "Abortion Access"
-                )}
-              </h3>
-              <p>{data?.abortion_summary ?? "No snapshot available yet."}</p>
-            </article>
-
-            {!!(data?.links && data.links.length) && (
-              <article className="card">
-                <h3 style={{ marginTop: 0 }}>Resources</h3>
-                <ul>
-                  {data.links.map((l, i) => (
-                    <li key={i}>
-                      <a href={l.url} target="_blank" rel="noreferrer">
-                        {l.label || l.url}
-                      </a>
-                    </li>
+          {"states" in data && Array.isArray(data.states) && (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  background: "#fff",
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th style={th}>State</th>
+                    <th style={th}>Parentage</th>
+                    <th style={th}>Abortion</th>
+                    <th style={th}>Sources</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.states.map((s) => (
+                    <tr key={s.code}>
+                      <td style={td}>
+                        {s.code} — {STATE_NAMES[s.code] || s.name}
+                      </td>
+                      <td style={td}>{s.parentage || "—"}</td>
+                      <td style={td}>{s.abortion || "—"}</td>
+                      <td style={td}>
+                        {Array.isArray(s.sources)
+                          ? s.sources.map((u, i) => (
+                              <a
+                                key={i}
+                                href={u}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                [{i + 1}]{" "}
+                              </a>
+                            ))
+                          : "—"}
+                      </td>
+                    </tr>
                   ))}
-                </ul>
-              </article>
-            )}
-          </section>
-        </>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       )}
-    </div>
+    </main>
   );
 }
+
+const th = {
+  textAlign: "left",
+  borderBottom: "1px solid #eee",
+  padding: "8px",
+};
+const td = {
+  borderBottom: "1px solid #f2f2f2",
+  padding: "8px",
+  verticalAlign: "top",
+};
