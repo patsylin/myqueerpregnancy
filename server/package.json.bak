@@ -2,12 +2,18 @@
   "name": "myqueerpregnancy-server",
   "version": "1.0.0",
   "description": "API server for My Queer Pregnancy App",
+  "type": "module",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
     "start": "nodemon index.js",
     "seed": "node ./db/seed.js"
   },
+  {
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": { "start": "nodemon index.js" },
+
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",

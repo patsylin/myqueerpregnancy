@@ -1,14 +1,15 @@
-const router = require("express").Router();
+// server/api/index.js (ESM)
+//import { Router } from "express";
+// import auth from "./auth.js";
+// import pregnancies from "./pregnancies.js";
+// import weeks from "./weeks.js";
+// import journal from "./journal.js";
 
-router.get("/health", (req, res, next) => {
-  res.send("All healthy and ready to go!");
-});
-router.use("/auth", require("./auth"));
-// /api/pregnancies
-router.use("/pregnancies", require("./pregnancies"));
-//api/weeks
-router.use("/weeks", require("./weeks"));
+const router = Router();
 
-router.use("/journal", require("./journal"));
+router.use("/auth", auth);
+router.use("/pregnancies", pregnancies);
+router.use("/weeks", weeks);
+router.use("/journal", journal);
 
-module.exports = router;
+//export default router;
