@@ -1,11 +1,18 @@
-// Require Client from pg
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
-//Establishing connect to database (like how we do with http://)
 const dbName = "queerPregnancyApp";
-const client = new Client(
-  process.env.DATABASE_URL || `postgres://localhost:5432/${dbName}`
-);
+const pool = new Pool({
+  connectionString:
+    process.env.DATABASE_URL || `postgres://localhost:5432/${dbName}`,
+});
 
-//Export for use in other files
-module.exports = client;
+pool.on("connect", () => {
+  console.log("✅ Connected to database:", dbName);
+});
+
+pool.on("error", (err) => {
+  console.error("❌ Unexpected DB error:", err);
+  process.exit(-1); // optional: crash so you notice right away
+});
+
+module.exports = pool;

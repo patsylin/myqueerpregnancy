@@ -1,15 +1,10 @@
-// server/api/index.js (ESM)
-//import { Router } from "express";
-// import auth from "./auth.js";
-// import pregnancies from "./pregnancies.js";
-// import weeks from "./weeks.js";
-// import journal from "./journal.js";
+const express = require("express");
+const router = express.Router();
 
-const router = Router();
+router.get("/_dbping", (req, res) => {
+  res.json({ ok: true, at: new Date().toISOString() });
+});
 
-router.use("/auth", auth);
-router.use("/pregnancies", pregnancies);
-router.use("/weeks", weeks);
-router.use("/journal", journal);
+router.use("/weeks", require("./weeks"));
 
-//export default router;
+module.exports = router;

@@ -1,16 +1,6 @@
 import React from "react";
 import StatusDashboard from "../components/StatusDashboard.jsx";
 
-export default function Home() {
-  return (
-    <main>
-      <h1>Welcome</h1>
-      <p>Quick health check of your API:</p>
-      <StatusDashboard />
-    </main>
-  );
-}
-
 const HomePage = () => {
   return (
     <div className="centered-container">

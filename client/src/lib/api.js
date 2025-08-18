@@ -1,6 +1,4 @@
 export const API = import.meta.env.VITE_API_BASE || "/api";
-
-export const API = import.meta.env.VITE_API_BASE || "/api";
 const json = (r) => r.json();
 
 export const rightsAll = () =>
@@ -10,8 +8,6 @@ export const rightsByState = (code) =>
   fetch(`${API}/rights?state=${encodeURIComponent(code)}`, {
     credentials: "include",
   }).then(json);
-
-const json = (res) => res.json();
 
 export const register = (user) =>
   fetch(`${API}/auth/register`, {

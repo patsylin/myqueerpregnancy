@@ -2,44 +2,65 @@ const client = require("../client");
 const util = require("../util");
 
 const getAllWeeks = async () => {
+  const { rows } = await client.query(`SELECT * FROM weeks ORDER BY id;`);
+  console.log("[getAllWeeks] returned", rows.length, "rows");
+  return rows;
+};
+
+// const getAllWeeks = async () => {
+//   try {
+//     console.log("[getAllWeeks] querying…");
+//     const { rows } = await client.query(`SELECT * FROM weeks ORDER BY id;`);
+//     console.log("[getAllWeeks] rows:", rows.length);
+//     return rows;
+//   } catch (error) {
+//     console.error("[getAllWeeks] error:", error);
+//     throw error;
+//   }
+// };
+
+// const getAllWeeks = async () => {
+//   try {
+//     const { rows } = await client.query(`SELECT * FROM weeks ORDER BY id;`);
+//     return rows;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+const getWeekById = async (week_id) => {
   try {
-    const { rows } = await client.query(
-      `SELECT * FROM weeks;`
-    );
-    return rows;
+    const id = Number(week_id);
+    if (!Number.isInteger(id)) return null;
+
+    const {
+      rows: [week],
+    } = await client.query(`SELECT * FROM weeks WHERE id = $1 LIMIT 1;`, [id]);
+    return week || null;
   } catch (error) {
     throw error;
   }
 };
 
-const getWeeksId = async (week_id) => {
-  const {
-    rows: [week],
-  } = await client.query(
-    //need help with rewriting this :
-    `
-    SELECT * FROM weeks WHERE id = $1
-    `,
-    [week_id]
-  );
-  return week;
-};
-
-const createWeeks = async ({ weight, size, info }) => {
-  const {
-    rows: [weeks],
-  } = await client.query(
-    `
+const createWeek = async ({ weight, size, info }) => {
+  try {
+    const {
+      rows: [week],
+    } = await client.query(
+      `
         INSERT INTO weeks(weight, size, info)
         VALUES ($1, $2, $3)
-        RETURNING *
-    `,
-    [weight, size, info]
-  );
-  return weeks;
+        RETURNING *;
+      `,
+      [weight, size, info]
+    );
+    return week;
+  } catch (error) {
+    throw error;
+  }
 };
 
-async function updateWeeks(week_id, fields) {
+async function updateWeek(week_id, fields) {
   try {
     const allowed = ["weight", "size", "info"];
     const toUpdate = {};
@@ -48,35 +69,35 @@ async function updateWeeks(week_id, fields) {
         toUpdate[column] = fields[column];
       }
     }
-    let weeks;
 
-    if (util.dbFields(toUpdate).insert.length > 0) {
-      const { insert, vals } = util.dbFields(toUpdate);
-      const { rows } = await client.query(
-        `
-          UPDATE weeks
-          SET ${insert}
-          WHERE "id"=$${vals.length + 1}
-          RETURNING *;
-        `,
-        [...vals, week_id]
-      );
-      weeks = rows[0];
-    }
+    if (!Object.keys(toUpdate).length) return await getWeekById(week_id);
 
-    return weeks;
+    const { insert, vals } = util.dbFields(toUpdate); // e.g. insert: `"weight"=$1, "size"=$2`
+    const {
+      rows: [week],
+    } = await client.query(
+      `
+        UPDATE weeks
+        SET ${insert}
+        WHERE id = $${vals.length + 1}
+        RETURNING *;
+      `,
+      [...vals, week_id]
+    );
+    return week || null;
   } catch (error) {
     throw error;
   }
 }
 
-async function deleteWeeks(id) {
+async function deleteWeek(id) {
   try {
-    const { rows } = await client.query(
-      'DELETE FROM weeks WHERE "id"=$1 RETURNING *',
-      [id]
-    );
-    return rows[0];
+    const {
+      rows: [deleted],
+    } = await client.query(`DELETE FROM weeks WHERE id = $1 RETURNING *;`, [
+      id,
+    ]);
+    return deleted || null;
   } catch (err) {
     throw err;
   }
@@ -84,8 +105,8 @@ async function deleteWeeks(id) {
 
 module.exports = {
   getAllWeeks,
-  getWeeksId,
-  createWeeks,
-  updateWeeks,
-  deleteWeeks,
+  getWeekById,
+  createWeek,
+  updateWeek,
+  deleteWeek,
 };
