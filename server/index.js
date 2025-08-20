@@ -11,6 +11,9 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use("/api/weeks", require("./routes/weeks"));
+app.use("/api/journal", require("./routes/journal"));
+
 // Mount API
 app.use("/api", require("./api"));
 
