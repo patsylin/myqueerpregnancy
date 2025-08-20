@@ -5,7 +5,7 @@ const AuthCtx = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // true until we check session
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // check existing session
@@ -15,13 +15,14 @@ export function AuthProvider({ children }) {
         const res = await fetch(`${API}/auth/me`, { credentials: "include" });
         const data = await res.json();
         if (res.ok && data && !data.error) setUser(data);
-      } catch (e) {
+      } catch {
         /* ignore */
       }
       setLoading(false);
     })();
   }, []);
 
+  // ✅ updated login
   const login = async ({ username, password }) => {
     setError("");
     const res = await fetch(`${API}/auth/login`, {
@@ -30,29 +31,40 @@ export function AuthProvider({ children }) {
       credentials: "include",
       body: JSON.stringify({ username, password }),
     });
-    const data = await res.json();
-    if (res.ok && data?.success) {
-      // fetch /me to get user object
-      const me = await fetch(`${API}/auth/me`, { credentials: "include" }).then(
-        (r) => r.json()
-      );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && !data.error) {
+      // expect server returns: { token?, user, needsDueDate }
+      // refresh /me to get user info
+      const me = await fetch(`${API}/auth/me`, {
+        credentials: "include",
+      }).then((r) => r.json());
       setUser(me);
-      return { ok: true };
+
+      return { ok: true, needsDueDate: !!data.needsDueDate, user: me };
     }
+
     setError(data?.error?.message || "Login failed");
     return { ok: false, error: data?.error?.message };
   };
 
-  const register = async ({ username, password }) => {
+  // ✅ updated register — pass dueDate too
+  const register = async ({ username, password, dueDate }) => {
     setError("");
     const res = await fetch(`${API}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, dueDate }),
     });
-    const data = await res.json();
-    if (res.ok && data?.success) return login({ username, password });
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && !data.error) {
+      // auto-login after registration
+      return login({ username, password });
+    }
+
     setError(data?.error?.message || "Registration failed");
     return { ok: false, error: data?.error?.message };
   };

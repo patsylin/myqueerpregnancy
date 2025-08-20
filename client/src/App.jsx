@@ -9,6 +9,9 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Journal from "./pages/Journal.jsx";
 import Rights from "./pages/Rights.jsx";
+import DueDateOnboarding from "./pages/DueDateOnboarding.jsx";
+
+<Route path="/onboarding/due-date" element={<DueDateOnboarding />} />;
 
 export default function App() {
   return (

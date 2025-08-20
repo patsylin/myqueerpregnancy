@@ -13,7 +13,16 @@ export default function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const res = await login({ username, password });
-    if (res.ok) nav(from, { replace: true });
+
+    if (res.ok) {
+      if (res.needsDueDate) {
+        // send them to the due-date onboarding page
+        nav("/onboarding/due-date", { replace: true });
+      } else {
+        // normal post-login path
+        nav(from, { replace: true });
+      }
+    }
   };
 
   return (
