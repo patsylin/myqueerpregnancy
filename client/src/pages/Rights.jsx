@@ -1,4 +1,3 @@
-// client/src/pages/Rights.jsx
 import { useEffect, useState } from "react";
 import { STATE_NAMES } from "../constants/states";
 import { fmtTally, fmtPercent } from "../lib/format";
@@ -8,7 +7,7 @@ const STATE_CODES = Object.keys(STATE_NAMES);
 
 export default function Rights() {
   const [loading, setLoading] = useState(true);
-  const [stateCode, setStateCode] = useState(""); // "" = all states
+  const [stateCode, setStateCode] = useState("");
   const [data, setData] = useState(null);
   const [err, setErr] = useState("");
 
@@ -25,9 +24,7 @@ export default function Rights() {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const onChange = (e) => {
     const code = e.target.value;
@@ -36,43 +33,40 @@ export default function Rights() {
   };
 
   return (
-    <main className="rights-page">
-      <h1 className="rights-header">Know Your Rights</h1>
+    <main className="container">
+      <h1>Know Your Rights</h1>
 
-      <div className="state-filter">
-        <label htmlFor="state">Filter by state:</label>
-        <select id="state" value={stateCode} onChange={onChange}>
-          <option value="">All states</option>
-          {STATE_CODES.map((c) => (
-            <option key={c} value={c}>
-              {c} — {STATE_NAMES[c]}
-            </option>
-          ))}
-        </select>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="state-filter" style={{ display: "grid", gap: 8, maxWidth: 420 }}>
+          <label htmlFor="state">Filter by state:</label>
+          <select id="state" value={stateCode} onChange={onChange}>
+            <option value="">All states</option>
+            {STATE_CODES.map((c) => (
+              <option key={c} value={c}>
+                {c} — {STATE_NAMES[c]}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {loading && <p>Loading…</p>}
       {err && <p className="error-text">{err}</p>}
 
       {!loading && !err && data && (
-        <section>
+        <>
           {"summary" in data && (
-            <div className="rights-summary">
+            <div className="card" style={{ marginBottom: 16 }}>
               <h2>Summary</h2>
               <p>Total states tracked: {fmtTally(data.summary?.states)}</p>
-              <p>
-                Parentage protections:{" "}
-                {fmtPercent(data.summary?.parentageProtectedPct)}
-              </p>
-              <p>
-                Abortion access: {fmtPercent(data.summary?.abortionAccessPct)}
-              </p>
+              <p>Parentage protections: {fmtPercent(data.summary?.parentageProtectedPct)}</p>
+              <p>Abortion access: {fmtPercent(data.summary?.abortionAccessPct)}</p>
             </div>
           )}
 
           {"states" in data && Array.isArray(data.states) && (
-            <div className="table-scroll">
-              <table className="rights-table">
+            <div className="card table-scroll">
+              <table className="rights-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th>State</th>
@@ -84,22 +78,13 @@ export default function Rights() {
                 <tbody>
                   {data.states.map((s) => (
                     <tr key={s.code}>
-                      <td>
-                        {s.code} — {STATE_NAMES[s.code] || s.name}
-                      </td>
+                      <td>{s.code} — {STATE_NAMES[s.code] || s.name}</td>
                       <td>{s.parentage || "—"}</td>
                       <td>{s.abortion || "—"}</td>
                       <td>
                         {Array.isArray(s.sources)
                           ? s.sources.map((u, i) => (
-                              <a
-                                key={i}
-                                href={u}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                [{i + 1}]{" "}
-                              </a>
+                              <a key={i} href={u} target="_blank" rel="noreferrer">[{i + 1}] </a>
                             ))
                           : "—"}
                       </td>
@@ -109,7 +94,7 @@ export default function Rights() {
               </table>
             </div>
           )}
-        </section>
+        </>
       )}
     </main>
   );

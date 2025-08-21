@@ -17,7 +17,6 @@ export default function DueDateOnboarding() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Save failed");
-      // after saving, bounce to your normal landing page
       window.location.href = "/journal";
     } catch (e) {
       setErr(e.message);
@@ -25,16 +24,18 @@ export default function DueDateOnboarding() {
   };
 
   return (
-    <form onSubmit={save} style={{ display: "grid", gap: 12, maxWidth: 360 }}>
-      <h1>What’s your due date?</h1>
-      {err && <div style={{ color: "crimson" }}>{err}</div>}
-      <input
-        type="date"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-        required
-      />
-      <button type="submit">Save</button>
-    </form>
+    <main className="container">
+      <form onSubmit={save} className="card" style={{ display: "grid", gap: 12, maxWidth: 360 }}>
+        <h1>What’s your due date?</h1>
+        {err && <div style={{ color: "crimson" }}>{err}</div>}
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          required
+        />
+        <button type="submit">Save</button>
+      </form>
+    </main>
   );
 }

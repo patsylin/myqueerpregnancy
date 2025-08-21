@@ -1,4 +1,4 @@
-mkdir -p client/src/lib
+mkdir -p ;client/src/lib
 cat > client/src/lib/auth.jsx <<'EOF'
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 

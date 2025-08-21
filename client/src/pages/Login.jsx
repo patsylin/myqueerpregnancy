@@ -13,36 +13,18 @@ export default function Login() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const res = await login({ username, password });
-
     if (res.ok) {
-      if (res.needsDueDate) {
-        // send them to the due-date onboarding page
-        nav("/onboarding/due-date", { replace: true });
-      } else {
-        // normal post-login path
-        nav(from, { replace: true });
-      }
+      if (res.needsDueDate) nav("/onboarding/due-date", { replace: true });
+      else nav(from, { replace: true });
     }
   };
 
   return (
-    <main>
+    <main className="container">
       <h1>Log in</h1>
-      <form
-        onSubmit={onSubmit}
-        style={{ display: "grid", gap: 12, maxWidth: 360 }}
-      >
-        <input
-          value={username}
-          onChange={(e) => setU(e.target.value)}
-          placeholder="Username"
-        />
-        <input
-          value={password}
-          onChange={(e) => setP(e.target.value)}
-          placeholder="Password"
-          type="password"
-        />
+      <form onSubmit={onSubmit} className="card" style={{ display: "grid", gap: 12, maxWidth: 360 }}>
+        <input value={username} onChange={(e) => setU(e.target.value)} placeholder="Username" />
+        <input value={password} onChange={(e) => setP(e.target.value)} placeholder="Password" type="password" />
         <button>Log in</button>
         {error && <div style={{ color: "crimson" }}>{error}</div>}
       </form>

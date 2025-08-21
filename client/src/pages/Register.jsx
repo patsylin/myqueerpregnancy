@@ -16,33 +16,14 @@ export default function Register() {
   };
 
   return (
-    <main>
+    <main className="container">
       <h1>Create an account</h1>
-      <form
-        onSubmit={onSubmit}
-        style={{ display: "grid", gap: 12, maxWidth: 360 }}
-      >
-        <input
-          value={username}
-          onChange={(e) => setU(e.target.value)}
-          placeholder="Username"
-          required
-        />
-        <input
-          value={password}
-          onChange={(e) => setP(e.target.value)}
-          placeholder="Password"
-          type="password"
-          required
-        />
+      <form onSubmit={onSubmit} className="card" style={{ display: "grid", gap: 12, maxWidth: 360 }}>
+        <input value={username} onChange={(e) => setU(e.target.value)} placeholder="Username" required />
+        <input value={password} onChange={(e) => setP(e.target.value)} placeholder="Password" type="password" required />
         <label>
           Due date
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            required
-          />
+          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
         </label>
         <button>Register</button>
         {error && <div style={{ color: "crimson" }}>{error}</div>}
