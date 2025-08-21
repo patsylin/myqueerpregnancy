@@ -1,20 +1,95 @@
+/* --- tiny UI polish (append this) --- */
 :root {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --panel: #ffffff;
+  --text-muted: #666;
+  --brand: #2563eb;         /* accessible blue */
+  --brand-weak: #1d4ed8;
+  --radius: 12px;
+  --shadow: 0 6px 20px rgba(0,0,0,.08);
 }
-* {
-  box-sizing: border-box;
+
+/* headings & text rhythm */
+h1, h2, h3 {
+  line-height: 1.15;
+  margin: 0 0 .6rem;
+  letter-spacing: .2px;
 }
-body {
-  margin: 0;
-  background: #fafafa;
+h1 { font-size: clamp(22px, 2.2vw + 12px, 34px); }
+h2 { font-size: clamp(18px, 1.6vw + 10px, 26px); }
+h3 { font-size: clamp(16px, 1.2vw + 9px, 22px); }
+p  { margin: 0 0 .9rem; }
+.muted, small { color: var(--text-muted); }
+
+/* links (keep your inherit color but add hover affordance) */
+a:hover { text-decoration: underline; }
+
+/* layout helpers (use if you want) */
+.container { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
+.section { margin: 18px 0; }
+
+/* cards (opt-in: add className="card") */
+.card {
+  background: var(--panel);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* buttons (styles <button> and .btn links) */
+button, .btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .45rem;
+  padding: .6rem .9rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, opacity .12s ease;
+}
+button:hover, .btn:hover { transform: translateY(-1px); background: var(--brand-weak); }
+button:disabled { opacity: .6; cursor: not-allowed; }
+
+/* inputs */
+input, select, textarea {
+  width: 100%;
+  background: #fff;
   color: #222;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: .6rem .7rem;
+  outline: none;
 }
-main {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+input::placeholder, textarea::placeholder { color: #8a8a8a; }
+
+/* simple top nav (opt-in: wrap nav in className="nav") */
+.nav {
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  position: sticky; top: 0; z-index: 10;
 }
-a {
-  color: inherit;
-  text-decoration: none;
+.nav-inner {
+  max-width: 900px; margin: 0 auto; padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
+.nav a { padding: 8px 10px; border-radius: 8px; }
+.nav a:hover { background: rgba(0,0,0,.04); }
+
+/* tiny badge utility (optional) */
+.badge {
+  display: inline-block;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  background: rgba(37,99,235,.12);
+  color: var(--brand);
+  font-weight: 600;
+  font-size: .78rem;
+}
+.rights-table th, .rights-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+.table-scroll { overflow: auto; }
