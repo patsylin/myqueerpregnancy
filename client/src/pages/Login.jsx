@@ -3,25 +3,20 @@ import { useAuth } from "../lib/auth.jsx";
 import { useState } from "react";
 
 export default function Login() {
-  const { login, error } = useAuth();
+  const { login, error, setUser } = useAuth(); // 👈 include setUser
   const [username, setU] = useState("");
   const [password, setP] = useState("");
   const nav = useNavigate();
   const loc = useLocation();
-  const from = loc.state?.from?.pathname || "/journal";
+  const from = loc.state?.from?.pathname || "/"; // 👈 default to home now
 
   const onSubmit = async (e) => {
     e.preventDefault();
     const res = await login({ username, password });
 
     if (res.ok) {
-      if (res.needsDueDate) {
-        // send them to the due-date onboarding page
-        nav("/onboarding/due-date", { replace: true });
-      } else {
-        // normal post-login path
-        nav(from, { replace: true });
-      }
+      setUser(res.user); // 👈 save user in context
+      nav(from, { replace: true }); // 👈 redirect to Home
     }
   };
 

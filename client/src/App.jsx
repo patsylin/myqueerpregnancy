@@ -1,5 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./lib/auth.jsx";
+// client/src/App.jsx
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./lib/auth.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import NavBar from "./components/NavBar.jsx";
@@ -8,38 +15,63 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Journal from "./pages/Journal.jsx";
 import Rights from "./pages/Rights.jsx";
-import WeekView from "./pages/WeekView.jsx";
-import DueDateOnboarding from "./pages/DueDateOnboarding.jsx";
+// ❌ removed WeekView (Sizes) and DueDateOnboarding imports
+
+// Show NavBar only when authenticated
+function AuthedLayout() {
+  return (
+    <>
+      <NavBar />
+      <Outlet />
+    </>
+  );
+}
+
+// Guests-only gate: if already logged in, bounce to Home
+function GuestOnlyRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null; // or a spinner
+  return user ? <Navigate to="/" replace /> : children;
+}
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <NavBar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/rights" element={<Rights />} />
-          <Route path="/sizes" element={<WeekView />} />
-
-          {/* public auth routes (hide in Nav when logged in; still routable) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* onboarding */}
-          <Route path="/onboarding/due-date" element={<DueDateOnboarding />} />
-
-          {/* protected */}
+          {/* ----- Public (guests only) ----- */}
           <Route
-            path="/journal"
+            path="/login"
             element={
-              <ProtectedRoute>
-                <Journal />
-              </ProtectedRoute>
+              <GuestOnlyRoute>
+                <Login />
+              </GuestOnlyRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestOnlyRoute>
+                <Register />
+              </GuestOnlyRoute>
             }
           />
 
-          {/* catch‑all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* ----- Authed only (with NavBar) ----- */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AuthedLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/rights" element={<Rights />} />
+            <Route path="/journal" element={<Journal />} />
+          </Route>
+
+          {/* ----- Fallback ----- */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

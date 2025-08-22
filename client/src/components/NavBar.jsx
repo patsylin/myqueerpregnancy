@@ -1,75 +1,51 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth.jsx";
+import { useState } from "react";
 
 export default function NavBar() {
+  const { user, setUser } = useAuth();
+  const [busy, setBusy] = useState(false);
   const nav = useNavigate();
-  const { user, logout } = useAuth();
 
-  // style callback for active links
-  const link = ({ isActive }) => ({
-    padding: "8px 10px",
-    borderRadius: 8,
-    background: isActive ? "rgba(0,0,0,.06)" : "transparent",
-  });
+  // This NavBar is only rendered when authed (per App.jsx ProtectedRoute),
+  // so no Login/Register links are included.
+  async function handleLogout() {
+    try {
+      setBusy(true);
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      }).catch(() => {});
+    } finally {
+      setUser(null);
+      nav("/login", { replace: true });
+      setBusy(false);
+    }
+  }
 
   return (
-    <header className="nav">
-      <div
-        className="nav-inner"
-        style={{ display: "flex", alignItems: "center", gap: 12 }}
-      >
-        {/* left side nav links */}
-        <nav style={{ display: "flex", gap: 12 }}>
-          <NavLink style={link} to="/">
+    <header className="navbar">
+      <div className="navbar-inner">
+        <div className="nav-links">
+          <NavLink to="/" end>
             Home
           </NavLink>
-          <NavLink style={link} to="/sizes">
-            Sizes
-          </NavLink>
-          <NavLink style={link} to="/rights">
-            Rights
-          </NavLink>
-          <NavLink style={link} to="/onboarding/due-date">
-            Due Date
-          </NavLink>
-          <NavLink style={link} to="/journal">
-            Journal
-          </NavLink>
-        </nav>
+          <NavLink to="/rights">Rights</NavLink>
+          <NavLink to="/journal">Journal</NavLink>
+        </div>
 
-        {/* right side auth actions */}
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          {user ? (
-            <>
-              <span className="muted">Hi, {user.username}</span>
-              <button
-                type="button"
-                className="btn"
-                onClick={async () => {
-                  await logout();
-                  nav("/");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink style={link} to="/login">
-                Login
-              </NavLink>
-              <NavLink className="btn" to="/register">
-                Register
-              </NavLink>
-            </>
+        <div className="nav-links">
+          {user && (
+            <span className="navbar-welcome">Welcome, {user.username}</span>
           )}
+          <button
+            onClick={handleLogout}
+            disabled={busy}
+            className="button button-outline logout-btn"
+            aria-label="Log out"
+          >
+            {busy ? "Logging out…" : "Logout"}
+          </button>
         </div>
       </div>
     </header>

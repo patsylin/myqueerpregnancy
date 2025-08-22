@@ -1,4 +1,3 @@
-// server/lib/gestationalAge.js
 function gestationalAgeFromDueDate(dueDateISO) {
   const today = new Date();
   const due = new Date(dueDateISO);
