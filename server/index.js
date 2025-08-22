@@ -11,11 +11,9 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/weeks", require("./routes/weeks"));
-app.use("/api/journal", require("./routes/journal"));
-
-// Mount API
-app.use("/api", require("./api"));
+// Mount all API routes from server/api/
+app.use("/api", require("./api/index.js"));
+app.use("/auth", require("./api/auth"));
 
 // Root ping (optional)
 app.get("/", (req, res) => {

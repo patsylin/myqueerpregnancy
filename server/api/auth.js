@@ -1,56 +1,106 @@
+// server/api/auth.js
+const express = require("express");
+const router = express.Router();
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const {
   createUser,
   getUserByUsername,
   getUserByToken,
 } = require("../db/helpers/users");
-const jwt = require("jsonwebtoken");
+const pool = require("../db"); // if you need DB access for pregnancies
 const { JWT_SECRET } = process.env;
-const { token } = require("morgan");
-
-const router = require("express").Router();
+const { username, password, dueDate } = req.body;
 
 const SALT_ROUNDS = 10;
 
-router.get("/", async (req, res, next) => {
-  try {
-    res.send("WOW! A thing!");
-  } catch (error) {
-    next(error);
-  }
-});
+// simple ping
+router.get("/", (_req, res) => res.send("WOW! A thing!"));
 
+// who am I (JWT in Authorization header)
 router.get("/me", async (req, res, next) => {
   try {
-    const response = await jwt.verify(req.headers.authorization, JWT_SECRET);
-    console.log("resp1", response);
-    const user = await getUserByToken(response.id);
-    console.log("user", user);
-    if (!user) {
-      throw "not a user";
-    }
+    const raw = req.headers.authorization;
+    if (!raw) return res.status(401).json({ error: "No token" });
+    const decoded = jwt.verify(raw, JWT_SECRET);
+    const user = await getUserByToken(decoded.id);
+    if (!user) return res.status(401).json({ error: "Not a user" });
     delete user.password;
     res.send({ user, ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// REGISTER (username + password + dueDate required)
+router.post("/register", async (req, res, next) => {
+  try {
+    const { username, password, dueDate } = req.body || {};
+    if (!username || !password || !dueDate) {
+      return res
+        .status(400)
+        .json({ error: "username, password, and dueDate are required" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const user = await createUser({ username, password: hashedPassword });
+    delete user.password;
+
+    // ensure pregnancy row with due date (unique per user enforced at DB)
+    await pool.query(
+      `INSERT INTO pregnancies (user_id, due_date)
+       VALUES ($1, $2)
+       ON CONFLICT (user_id) DO UPDATE SET due_date = EXCLUDED.due_date`,
+      [user.id, dueDate]
+    );
+
+    // sign a token (your /me uses Authorization header)
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      JWT_SECRET
+    );
+
+    // (optional) also cookie:
+    res.cookie("token", token, {
+      sameSite: "strict",
+      httpOnly: true,
+      signed: true,
+    });
+
+    res.status(201).send({ user, ok: true, token });
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/register", async (req, res, next) => {
+// LOGIN (returns needsDueDate for onboarding redirect)
+router.post("/login", async (req, res, next) => {
   try {
-    console.log(req.body, JWT_SECRET);
-    const { username, password } = req.body;
-    //hashing the password
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    //sending username and hashed pw to database
-    const user = await createUser({ username, password: hashedPassword });
-    //removing password from user object for security reasons
-    delete user.password;
+    const { username, password } = req.body || {};
+    const user = await getUserByUsername(username);
+    if (!user)
+      return res
+        .status(401)
+        .send({ ok: false, message: "Invalid credentials" });
 
-    //creating our token
-    const token = jwt.sign(user, JWT_SECRET);
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword)
+      return res
+        .status(401)
+        .send({ ok: false, message: "Invalid credentials" });
 
-    //attaching a cookie to our response using the token that we created
+    // check due date
+    const { rows: preg } = await pool.query(
+      `SELECT due_date FROM pregnancies WHERE user_id=$1 LIMIT 1`,
+      [user.id]
+    );
+    const needsDueDate = !preg.length || !preg[0].due_date;
+
+    // sign token (to match /me)
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      JWT_SECRET
+    );
     res.cookie("token", token, {
       sameSite: "strict",
       httpOnly: true,
@@ -58,66 +108,20 @@ router.post("/register", async (req, res, next) => {
     });
 
     delete user.password;
-    // console.log(res)
-
-    res.send({ user, ok: true, token });
+    res.send({ user, ok: true, token, needsDueDate });
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/login", async (req, res, next) => {
-  try {
-    console.log("req.body", req.body);
-    const { username, password } = req.body;
-    const user = await getUserByUsername(username);
-    console.log("user", user);
-
-    if (!user) {
-      return res
-        .status(401)
-        .send({ ok: false, message: "Invalid credentials" });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    console.log("validPassword", validPassword);
-
-    // delete user.password;
-    if (validPassword) {
-      //creating our token
-      const token = jwt.sign(user, JWT_SECRET);
-      //attaching a cookie to our response using the token that we created
-      res.cookie("token", token, {
-        sameSite: "strict",
-        httpOnly: true,
-        signed: true,
-      });
-      console.log("token", token);
-
-      delete user.password;
-      res.send({ user, ok: true, token });
-    } else {
-      res
-        .status(401)
-        .send({ ok: false, message: "Invalid credentials" });
-      // res.send({ message: "Failed to login!" });
-    }
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/logout", async (req, res, next) => {
+router.post("/logout", (_req, res, next) => {
   try {
     res.clearCookie("token", {
       sameSite: "strict",
       httpOnly: true,
       signed: true,
     });
-    res.send({
-      loggedIn: false,
-      message: "Logged Out",
-    });
+    res.send({ loggedIn: false, message: "Logged Out" });
   } catch (error) {
     next(error);
   }
