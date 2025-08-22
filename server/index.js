@@ -9,7 +9,7 @@ const app = express();
 app.use(morgan("dev"));
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(process.env.JWT_SECRET));
 
 // Mount all API routes from server/api/
 app.use("/api", require("./api/index.js"));

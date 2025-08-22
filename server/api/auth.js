@@ -1,130 +1,105 @@
-// server/api/auth.js
 const express = require("express");
-const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {
-  createUser,
-  getUserByUsername,
-  getUserByToken,
-} = require("../db/helpers/users");
-const pool = require("../db"); // if you need DB access for pregnancies
-const { JWT_SECRET } = process.env;
-const { username, password, dueDate } = req.body;
+const pool = require("../db");
 
-const SALT_ROUNDS = 10;
+const AuthCtx = createContext(null);
+export const useAuth = () => useContext(AuthCtx);
 
-// simple ping
-router.get("/", (_req, res) => res.send("WOW! A thing!"));
+const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
-// who am I (JWT in Authorization header)
-router.get("/me", async (req, res, next) => {
-  try {
-    const raw = req.headers.authorization;
-    if (!raw) return res.status(401).json({ error: "No token" });
-    const decoded = jwt.verify(raw, JWT_SECRET);
-    const user = await getUserByToken(decoded.id);
-    if (!user) return res.status(401).json({ error: "Not a user" });
-    delete user.password;
-    res.send({ user, ok: true });
-  } catch (err) {
-    next(err);
+export function AuthProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+  const [user, setUser] = useState(null);
+  const [pregnancy, setPregnancy] = useState(null);
+  const [loading, setLoading] = useState(!!token);
+  const [error, setError] = useState("");
+
+  // helper: save/remove token
+  function saveToken(t) {
+    setToken(t || "");
+    if (t) localStorage.setItem("token", t);
+    else localStorage.removeItem("token");
   }
-});
 
-// REGISTER (username + password + dueDate required)
-router.post("/register", async (req, res, next) => {
-  try {
-    const { username, password, dueDate } = req.body || {};
-    if (!username || !password || !dueDate) {
-      return res
-        .status(400)
-        .json({ error: "username, password, and dueDate are required" });
+  async function fetchMe(t = token) {
+    if (!t) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${t}` },
+        credentials: "include", // harmless if you don't use cookies
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Failed to load profile");
+      setUser(data.user || null);
+      setPregnancy(data.pregnancy || null); // { dueDate, weeks, days, category }
+    } catch (e) {
+      setError(e.message);
+      setUser(null);
+      setPregnancy(null);
+      saveToken("");
+    } finally {
+      setLoading(false);
     }
-
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await createUser({ username, password: hashedPassword });
-    delete user.password;
-
-    // ensure pregnancy row with due date (unique per user enforced at DB)
-    await pool.query(
-      `INSERT INTO pregnancies (user_id, due_date)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id) DO UPDATE SET due_date = EXCLUDED.due_date`,
-      [user.id, dueDate]
-    );
-
-    // sign a token (your /me uses Authorization header)
-    const token = jwt.sign(
-      { id: user.id, username: user.username },
-      JWT_SECRET
-    );
-
-    // (optional) also cookie:
-    res.cookie("token", token, {
-      sameSite: "strict",
-      httpOnly: true,
-      signed: true,
-    });
-
-    res.status(201).send({ user, ok: true, token });
-  } catch (error) {
-    next(error);
   }
-});
 
-// LOGIN (returns needsDueDate for onboarding redirect)
-router.post("/login", async (req, res, next) => {
-  try {
-    const { username, password } = req.body || {};
-    const user = await getUserByUsername(username);
-    if (!user)
-      return res
-        .status(401)
-        .send({ ok: false, message: "Invalid credentials" });
+  // on mount / token change, load profile
+  useEffect(() => {
+    if (token) fetchMe(token);
+  }, [token]);
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
-      return res
-        .status(401)
-        .send({ ok: false, message: "Invalid credentials" });
-
-    // check due date
-    const { rows: preg } = await pool.query(
-      `SELECT due_date FROM pregnancies WHERE user_id=$1 LIMIT 1`,
-      [user.id]
-    );
-    const needsDueDate = !preg.length || !preg[0].due_date;
-
-    // sign token (to match /me)
-    const token = jwt.sign(
-      { id: user.id, username: user.username },
-      JWT_SECRET
-    );
-    res.cookie("token", token, {
-      sameSite: "strict",
-      httpOnly: true,
-      signed: true,
+  // API helpers
+  async function register({ username, password, dueDate }) {
+    const res = await fetch(`${API}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, password, dueDate }),
     });
-
-    delete user.password;
-    res.send({ user, ok: true, token, needsDueDate });
-  } catch (error) {
-    next(error);
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data?.message || data?.error || "Registration failed");
+    saveToken(data.token);
+    await fetchMe(data.token);
+    return data;
   }
-});
 
-router.post("/logout", (_req, res, next) => {
-  try {
-    res.clearCookie("token", {
-      sameSite: "strict",
-      httpOnly: true,
-      signed: true,
+  async function login({ username, password }) {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, password }),
     });
-    res.send({ loggedIn: false, message: "Logged Out" });
-  } catch (error) {
-    next(error);
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data?.message || data?.error || "Login failed");
+    saveToken(data.token);
+    await fetchMe(data.token);
+    return data;
+    // You can inspect data.needsDueDate here and redirect to /onboarding/due-date if true.
   }
-});
 
-module.exports = router;
+  async function logout() {
+    try {
+      await fetch(`${API}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      /* ignore */
+    }
+    setUser(null);
+    setPregnancy(null);
+    saveToken("");
+  }
+
+  const value = useMemo(
+    () => ({ token, user, pregnancy, loading, error, register, login, logout }),
+    [token, user, pregnancy, loading, error]
+  );
+
+  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
+}

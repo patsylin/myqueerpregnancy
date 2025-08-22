@@ -1,4 +1,3 @@
-cat > client/src/pages/Journal.jsx <<'EOF'
 import { useEffect, useState } from "react";
 
 export default function Journal() {
@@ -10,7 +9,8 @@ export default function Journal() {
     setErr("");
     try {
       const res = await fetch("/api/journal", { credentials: "include" });
-      if (res.status === 404) throw Object.assign(new Error("offline"), { offline: true });
+      if (res.status === 404)
+        throw Object.assign(new Error("offline"), { offline: true });
       const data = await res.json();
       if (res.ok && Array.isArray(data)) setItems(data);
       else setErr(data?.error?.message || "Failed to load journal");
@@ -37,7 +37,8 @@ export default function Journal() {
         credentials: "include",
         body: JSON.stringify({ content: text }),
       });
-      if (res.status === 404) throw Object.assign(new Error("offline"), { offline: true });
+      if (res.status === 404)
+        throw Object.assign(new Error("offline"), { offline: true });
       if (res.ok) {
         setText("");
         load();
@@ -66,7 +67,11 @@ export default function Journal() {
   return (
     <main className="container">
       <h1>Journal</h1>
-      <form onSubmit={create} className="card" style={{ display: "grid", gap: 8, maxWidth: 600 }}>
+      <form
+        onSubmit={create}
+        className="card"
+        style={{ display: "grid", gap: 8, maxWidth: 600 }}
+      >
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -89,4 +94,3 @@ export default function Journal() {
     </main>
   );
 }
-EOF

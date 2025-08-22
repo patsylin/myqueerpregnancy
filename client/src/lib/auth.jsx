@@ -1,5 +1,3 @@
-mkdir -p client/src/lib
-cat > client/src/lib/auth.jsx <<'EOF'
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const API = import.meta.env.VITE_API_BASE || "/api";
@@ -32,7 +30,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await safeFetch(`${API}/auth/me`, { credentials: "include" });
+        const res = await safeFetch(`${API}/auth/me`, {
+          credentials: "include",
+        });
         const j = await res.json();
         if (res.ok && j) setUser(j);
       } catch (e) {
@@ -82,9 +82,10 @@ export function AuthProvider({ children }) {
       return { ok: true, needsDueDate: !(j.user?.dueDate || j?.dueDate) };
     } catch (e) {
       if (isOffline404(e)) {
-        const u =
-          JSON.parse(localStorage.getItem("demoUser") || "null") ||
-          { id: "demo", username };
+        const u = JSON.parse(localStorage.getItem("demoUser") || "null") || {
+          id: "demo",
+          username,
+        };
         localStorage.setItem("demoUser", JSON.stringify(u));
         setUser(u);
         return { ok: true, needsDueDate: !u?.dueDate };
@@ -97,10 +98,16 @@ export function AuthProvider({ children }) {
   function logout() {
     localStorage.removeItem("demoUser");
     setUser(null);
-    fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" }).catch(() => {});
+    fetch(`${API}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
   }
 
-  const value = useMemo(() => ({ user, error, login, register, logout }), [user, error]);
+  const value = useMemo(
+    () => ({ user, error, login, register, logout }),
+    [user, error]
+  );
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
 
@@ -109,4 +116,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
   return ctx;
 }
-EOF
