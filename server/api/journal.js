@@ -1,12 +1,8 @@
+// server/api/journal.js
 const router = require("express").Router();
-const {
-  createJournalEntry,
-  getAllJournalEntries,
-  getJournalEntriesByUserId,
-  updateJournalEntry,
-  deleteJournalEntry,
-} = require("../db/helpers/journalEntries");
+const pool = require("../db"); // <-- ADD THIS
 
+// GET /api/journal?userId=...&week=...
 router.get("/", async (req, res) => {
   try {
     const { userId, week } = req.query;
@@ -67,34 +63,6 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("POST /api/journal", err);
     res.status(500).json({ error: "Server error" });
-  }
-});
-
-router.put("/:id", async (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-    if (!id)
-      return res.status(400).json({ error: { message: "valid id required" } });
-    const updated = await updateJournalEntry(id, req.body || {});
-    if (!updated)
-      return res.status(404).json({ error: { message: "entry not found" } });
-    res.json(updated);
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.delete("/:id", async (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-    if (!id)
-      return res.status(400).json({ error: { message: "valid id required" } });
-    const removed = await deleteJournalEntry(id);
-    if (!removed)
-      return res.status(404).json({ error: { message: "entry not found" } });
-    res.json({ success: true, id });
-  } catch (err) {
-    next(err);
   }
 });
 
