@@ -1,4 +1,4 @@
-require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
@@ -14,6 +14,7 @@ app.use(cookieParser(process.env.JWT_SECRET));
 // Mount all API routes from server/api/
 app.use("/api", require("./api/index.js"));
 app.use("/auth", require("./api/auth"));
+app.use("/api/weeks", require("./api/weeks"));
 
 // Root ping (optional)
 app.get("/", (req, res) => {

@@ -1,13 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "./lib/auth.jsx";
+import App from "./App.jsx";
+import "./styles/app.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
+  <React.StrictMode>
     <AuthProvider>
-      <App />
+      {/* Use Vite’s base path as basename if your app runs at /myQueerPregnancyApp/ */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <App />
+      </BrowserRouter>
     </AuthProvider>
-  </BrowserRouter>
+  </React.StrictMode>
 );

@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+export const API = import.meta.env.VITE_API_BASE || "/api";
 
 export async function getAllSizes() {
   const res = await fetch(`${API}/api/sizes`);

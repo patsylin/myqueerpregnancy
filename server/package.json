@@ -6,6 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "nodemon index.js",
+    "dbping": "node ./dbping.js",
     "seed": "node ./db/seed.js"
   },
   "dependencies": {

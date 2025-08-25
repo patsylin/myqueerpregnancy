@@ -177,18 +177,15 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// LOGOUT
-router.post("/logout", (_req, res, next) => {
-  try {
-    res.clearCookie("token", {
-      sameSite: "strict",
-      httpOnly: true,
-      signed: true,
-    });
-    res.send({ loggedIn: false, message: "Logged Out" });
-  } catch (error) {
-    next(error);
-  }
+// POST /api/auth/logout
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "strict",
+    signed: true,
+    // secure: true, // enable in production behind HTTPS
+  });
+  return res.json({ ok: true, message: "Logged out" });
 });
 
 module.exports = router;

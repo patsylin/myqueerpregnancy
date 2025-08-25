@@ -1,12 +1,5 @@
-// client/src/App.jsx
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-} from "react-router-dom";
-import { AuthProvider, useAuth } from "./lib/auth.jsx";
+// src/App.jsx
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import NavBar from "./components/NavBar.jsx";
@@ -15,65 +8,38 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Journal from "./pages/Journal.jsx";
 import Rights from "./pages/Rights.jsx";
-// ❌ removed WeekView (Sizes) and DueDateOnboarding imports
-
-// Show NavBar only when authenticated
-function AuthedLayout() {
-  return (
-    <>
-      <NavBar />
-      <Outlet />
-    </>
-  );
-}
-
-// Guests-only gate: if already logged in, bounce to Home
-function GuestOnlyRoute({ children }) {
-  const { user, loading } = useAuth();
-  if (loading) return null; // or a spinner
-  return user ? <Navigate to="/" replace /> : children;
-}
+import WeekView from "./pages/WeekView.jsx";
+import DueDateOnboarding from "./pages/DueDateOnboarding.jsx";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* ----- Public (guests only) ----- */}
-          <Route
-            path="/login"
-            element={
-              <GuestOnlyRoute>
-                <Login />
-              </GuestOnlyRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <GuestOnlyRoute>
-                <Register />
-              </GuestOnlyRoute>
-            }
-          />
+    <>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/rights" element={<Rights />} />
+        <Route path="/sizes" element={<WeekView />} />
 
-          {/* ----- Authed only (with NavBar) ----- */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AuthedLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/" element={<Home />} />
-            <Route path="/rights" element={<Rights />} />
-            <Route path="/journal" element={<Journal />} />
-          </Route>
+        {/* public auth routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* ----- Fallback ----- */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        {/* onboarding */}
+        <Route path="/onboarding/due-date" element={<DueDateOnboarding />} />
+
+        {/* protected */}
+        <Route
+          path="/journal"
+          element={
+            <ProtectedRoute>
+              <Journal />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* catch‑all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
