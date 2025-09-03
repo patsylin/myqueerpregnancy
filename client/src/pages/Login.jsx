@@ -3,44 +3,50 @@ import { useAuth } from "../lib/auth.jsx";
 import { useState } from "react";
 
 export default function Login() {
-  const { login, error, setUser } = useAuth(); // 👈 include setUser
+  const { login, error, setUser } = useAuth();
   const [username, setU] = useState("");
   const [password, setP] = useState("");
   const nav = useNavigate();
   const loc = useLocation();
-  const from = loc.state?.from?.pathname || "/"; // 👈 default to home now
+  const from = loc.state?.from?.pathname || "/";
 
   const onSubmit = async (e) => {
     e.preventDefault();
     const res = await login({ username, password });
 
     if (res.ok) {
-      setUser(res.user); // 👈 save user in context
-      nav(from, { replace: true }); // 👈 redirect to Home
+      setUser(res.user);
+      nav(from, { replace: true });
     }
   };
 
   return (
-    <main>
-      <h1>Log in</h1>
-      <form
-        onSubmit={onSubmit}
-        style={{ display: "grid", gap: 12, maxWidth: 360 }}
-      >
-        <input
-          value={username}
-          onChange={(e) => setU(e.target.value)}
-          placeholder="Username"
-        />
-        <input
-          value={password}
-          onChange={(e) => setP(e.target.value)}
-          placeholder="Password"
-          type="password"
-        />
-        <button>Log in</button>
-        {error && <div style={{ color: "crimson" }}>{error}</div>}
-      </form>
+    <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <h1 className="text-3xl font-bold mb-4">Log in</h1>
+        <form onSubmit={onSubmit} className="flex flex-col gap-3">
+          <input
+            value={username}
+            onChange={(e) => setU(e.target.value)}
+            placeholder="Username"
+            className="w-full rounded-xl border border-gray-300 px-3 py-2"
+          />
+          <input
+            value={password}
+            onChange={(e) => setP(e.target.value)}
+            placeholder="Password"
+            type="password"
+            className="w-full rounded-xl border border-gray-300 px-3 py-2"
+          />
+          <button
+            className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-full
+                       bg-blue-600 text-white font-semibold hover:bg-blue-700"
+          >
+            {error ? "Try again" : "Log in"}
+          </button>
+          {error && <div className="text-red-600">{error}</div>}
+        </form>
+      </div>
     </main>
   );
 }

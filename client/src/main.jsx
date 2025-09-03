@@ -1,17 +1,17 @@
+// client/src/main.jsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { AuthProvider } from "./lib/auth.jsx";
 import App from "./App.jsx";
-import "./styles/app.css";
+import { AuthProvider } from "../AuthContext.jsx"; // 👈 use new unified provider
+import "./index.css"; // tailwind + your custom styles
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AuthProvider>
-      {/* Use Vite’s base path as basename if your app runs at /myQueerPregnancyApp/ */}
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter>
+      <AuthProvider>
         <App />
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

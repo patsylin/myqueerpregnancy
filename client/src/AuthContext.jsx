@@ -1,5 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { me } from "./lib/api"; // GET /auth/me (must send { user } when cookie valid)
+import {
+  me,
+  login as loginApi,
+  register as registerApi,
+  logout as logoutApi,
+} from "./src/lib/api";
 
 const AuthCtx = createContext(null);
 
@@ -10,18 +15,33 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await me(); // expects { user } or 401
-        setUser(data?.user ?? null);
-      } catch {
-        setUser(null);
+        const res = await me();
+        if (res.ok && res.user) setUser(res.user);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
+  async function login(creds) {
+    const res = await loginApi(creds);
+    if (res.ok && res.user) setUser(res.user);
+    return res;
+  }
+
+  async function register(payload) {
+    return registerApi(payload);
+  }
+
+  async function logout() {
+    await logoutApi();
+    setUser(null);
+  }
+
   return (
-    <AuthCtx.Provider value={{ user, setUser, loading }}>
+    <AuthCtx.Provider
+      value={{ user, setUser, loading, login, register, logout }}
+    >
       {children}
     </AuthCtx.Provider>
   );
