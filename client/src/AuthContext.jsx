@@ -4,7 +4,7 @@ import {
   login as loginApi,
   register as registerApi,
   logout as logoutApi,
-} from "./src/lib/api";
+} from "./lib/api";
 
 const AuthCtx = createContext(null);
 

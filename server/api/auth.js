@@ -6,36 +6,30 @@ const jwt = require("jsonwebtoken");
 
 const pool = require("../db");
 const { gestationalAgeFromDueDate } = require("../lib/gestationalAge");
-
 const {
   createUser,
   getUserByUsername,
-  getUserByToken, // your helper should verify token OR accept token & verify inside
+  getUserByToken,
 } = require("../db/helpers/users");
 
 const { JWT_SECRET } = process.env;
 const SALT_ROUNDS = 10;
 
-// ping
 router.get("/", (_req, res) => res.send("WOW! A thing!"));
 
-// helper to read Bearer or signed cookie
+// UNSIGNED cookie reader
 function extractToken(req) {
-  const raw =
-    req.headers.authorization || req.signedCookies?.token || req.cookies?.token;
+  const raw = req.headers.authorization || req.cookies?.token;
   if (!raw) return null;
   return raw.startsWith("Bearer ") ? raw.slice(7) : raw;
 }
 
-// ME (user + computed weeks/days/category)
 router.get("/me", async (req, res, next) => {
   try {
     const token = extractToken(req);
     if (!token) return res.status(401).json({ error: "No token" });
 
-    // If getUserByToken expects raw token and verifies internally, this is enough.
-    // Otherwise: const { id } = jwt.verify(token, JWT_SECRET); then lookup by id.
-    const user = await getUserByToken(token);
+    const user = await getUserByToken(token); // or jwt.verify + lookup
     if (!user) return res.status(401).json({ error: "Not a user" });
 
     delete user.password;
@@ -62,11 +56,9 @@ function sendError(res, status, code, message) {
   return res.status(status).json({ error: code, message });
 }
 
-router.post("/register", async (req, res, next) => {
+router.post("/register", async (req, res) => {
   try {
     const { username, password, dueDate } = req.body || {};
-
-    // 1) Validate inputs up front
     if (!username || !password || !dueDate) {
       return sendError(
         res,
@@ -76,21 +68,13 @@ router.post("/register", async (req, res, next) => {
       );
     }
 
-    // (Optional) light format guard so gestationalAgeFromDueDate won’t explode
-    // if (Number.isNaN(Date.parse(dueDate))) {
-    //   return sendError(res, 400, "INVALID_DATE", "dueDate must be an ISO date string (YYYY-MM-DD).");
-    // }
-
-    // 2) Hash the password
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // 3) Create the user, rely on DB unique constraint for duplicates
     let user;
     try {
       user = await createUser({ username, password: hashedPassword });
     } catch (err) {
-      // Postgres unique violation
-      if (err && err.code === "23505") {
+      if (err?.code === "23505") {
         return sendError(
           res,
           409,
@@ -98,13 +82,11 @@ router.post("/register", async (req, res, next) => {
           "That username is already in use."
         );
       }
-      throw err; // let the global handler format unexpected errors
+      throw err;
     }
 
-    // 4) Remove sensitive fields before responding
     if (user) delete user.password;
 
-    // 5) Store pregnancy info (upsert by user_id)
     const { weeks, days } = gestationalAgeFromDueDate(dueDate);
     const gaDays = weeks * 7 + days;
 
@@ -117,24 +99,20 @@ router.post("/register", async (req, res, next) => {
       [user.id, dueDate, gaDays]
     );
 
-    // 6) Issue token + cookie
     const token = jwt.sign(
       { id: user.id, username: user.username },
       JWT_SECRET
     );
 
     res.cookie("token", token, {
-      sameSite: "strict",
       httpOnly: true,
-      signed: true,
-      // secure: true, // uncomment in production behind HTTPS
+      sameSite: "lax",
+      secure: false, // true in prod (HTTPS)
+      path: "/",
     });
 
-    // 7) Success (no "ok" needed; keep response minimal & consistent)
     return res.status(201).json({ user, token });
   } catch (error) {
-    // If anything slips through, normalize via helper (or let global handler do it)
-    // next(error); // if you prefer centralized formatting, keep this and ensure you have app-level error middleware
     return sendError(
       res,
       error.status || 500,
@@ -143,31 +121,42 @@ router.post("/register", async (req, res, next) => {
     );
   }
 });
-
-// LOGIN
+// server/api/auth.js
 router.post("/login", async (req, res, next) => {
   try {
     const { username, password } = req.body || {};
-    const user = await getUserByUsername(username);
-    if (!user)
+    // TEMP DEBUG (remove after it works)
+    console.log("[LOGIN] username:", username);
+
+    // If your DB stores usernames case-sensitively, consider normalizing:
+    const lookupName = username?.trim();
+    const user = await getUserByUsername(lookupName); // verify this helper
+
+    if (!user) {
+      console.log("[LOGIN] user not found");
       return res
         .status(401)
         .send({ ok: false, message: "Invalid credentials" });
+    }
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid)
+    if (!valid) {
+      console.log("[LOGIN] bad password");
       return res
         .status(401)
         .send({ ok: false, message: "Invalid credentials" });
+    }
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
       JWT_SECRET
     );
+
     res.cookie("token", token, {
-      sameSite: "strict",
       httpOnly: true,
-      signed: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
     });
 
     delete user.password;
@@ -177,13 +166,46 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// POST /api/auth/logout
-router.post("/logout", (req, res) => {
+// router.post("/login", async (req, res, next) => {
+//   try {
+//     const { username, password } = req.body || {};
+//     const user = await getUserByUsername(username);
+//     if (!user)
+//       return res
+//         .status(401)
+//         .send({ ok: false, message: "Invalid credentials" });
+
+//     const valid = await bcrypt.compare(password, user.password);
+//     if (!valid)
+//       return res
+//         .status(401)
+//         .send({ ok: false, message: "Invalid credentials" });
+
+//     const token = jwt.sign(
+//       { id: user.id, username: user.username },
+//       JWT_SECRET
+//     );
+
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       sameSite: "lax",
+//       secure: false, // true in prod
+//       path: "/",
+//     });
+
+//     delete user.password;
+//     res.send({ user, ok: true, token });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+router.post("/logout", (_req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "strict",
-    signed: true,
-    // secure: true, // enable in production behind HTTPS
+    sameSite: "lax",
+    secure: false, // true in prod
+    path: "/",
   });
   return res.json({ ok: true, message: "Logged out" });
 });

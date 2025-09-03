@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/auth.jsx";
+import { useAuth } from "../AuthContext";
 import { useState } from "react";
 
 export default function Login() {
@@ -10,15 +10,26 @@ export default function Login() {
   const loc = useLocation();
   const from = loc.state?.from?.pathname || "/";
 
+  // client/src/pages/Login.jsx (example)
   const onSubmit = async (e) => {
     e.preventDefault();
-    const res = await login({ username, password });
-
-    if (res.ok) {
-      setUser(res.user);
-      nav(from, { replace: true });
+    const { ok, user, message } = await login({ username, password });
+    if (!ok) {
+      setError(message || "Login failed");
+      return;
     }
+    // proceed…
   };
+
+  // const onSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const res = await login({ username, password });
+
+  //   if (res.ok) {
+  //     setUser(res.user);
+  //     nav(from, { replace: true });
+  //   }
+  // };
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">

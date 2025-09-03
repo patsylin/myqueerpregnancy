@@ -9,5 +9,6 @@ router.use("/auth", require("./auth"));
 router.use("/weeks", require("./weeks"));
 router.use("/journal", require("./journal"));
 router.use("/pregnancies", require("./pregnancies"));
+router.use("/rights", require("./rights")); // add if you implement it
 
 module.exports = router;

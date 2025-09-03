@@ -2,6 +2,9 @@
 const { Pool } = require("pg");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cookieParser()); // <-- UNSIGNED cookies
+app.use("/api", require("./api/index.js"));
 
 // Prefer DATABASE_URL if provided (e.g. in .env)
 const connectionString = process.env.DATABASE_URL;

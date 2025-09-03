@@ -1,8 +1,7 @@
 // client/src/pages/Home.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/auth.jsx";
-
+import { useAuth } from "../AuthContext";
 export default function Home() {
   const { user } = useAuth(); // { id, username } after login
   const [data, setData] = useState(null);

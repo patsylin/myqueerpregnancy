@@ -1,3 +1,4 @@
+// server/index.js
 require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
@@ -7,22 +8,20 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 app.use(morgan("dev"));
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use(cookieParser(process.env.JWT_SECRET));
+app.use(cookieParser()); // <-- UNSIGNED cookies
 
-// Mount all API routes from server/api/
 app.use("/api", require("./api/index.js"));
-app.use("/auth", require("./api/auth"));
-app.use("/api/weeks", require("./api/weeks"));
 
-// Root ping (optional)
-app.get("/", (req, res) => {
-  res.send("Server is up.");
-});
+app.get("/", (_req, res) => res.send("Server is up."));
 
-// Error handler so hangs become visible errors
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   console.error(err);
   res
     .status(err.status || 500)
