@@ -1,4 +1,6 @@
-const JWT_SECRET = 'pumpkin'
-const COOKIE_SECRET = 'tell everyone'
+require("dotenv").config();
 
-module.exports = { JWT_SECRET, COOKIE_SECRET }
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+const COOKIE_SECRET = process.env.COOKIE_SECRET || "dev-cookie";
+
+module.exports = { JWT_SECRET, COOKIE_SECRET };
